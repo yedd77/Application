@@ -19,11 +19,11 @@ function updateUI() {
   } else {
     note.style.display = "none";
     if (deferredPrompt) {
-      installBtn.style.display = "block";  
+      installBtn.style.display = "block"; 
+        installBtn.textContent = "Install App"; 
     } else {
       // Show button anyway with fallback message for testing
-      installBtn.style.display = "block";
-      installBtn.textContent = "Install PWA";
+      installBtn.style.display = "none";
     }
   }
 }
