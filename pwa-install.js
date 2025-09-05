@@ -1,67 +1,52 @@
-// PWA Installation Script
 let deferredPrompt = null;
 
-// Show/hide UI based on device type
-function updateUI() {
-    const noteText = document.querySelector('.note');
-    const installButton = document.getElementById('installBtn');
-
-    if (isMobileDevice()) {
-        // On mobile → show install button
-        noteText.style.display = 'none';
-        installButton.style.display = 'block';
-    } else {
-        // On desktop → show message
-        noteText.style.display = 'block';
-        installButton.style.display = 'none';
-    }
-}
-
-// Check if device is mobile
+// Detect if mobile
 function isMobileDevice() {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
-           || window.innerWidth <= 768;
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) 
+         || window.innerWidth <= 768;
 }
 
-// Handle PWA installation
-async function installPWA() {
-    if (!deferredPrompt) return;
+// Show message or button depending on device
+function updateUI() {
+  const note = document.querySelector('.note');
+  const installBtn = document.getElementById('installBtn');
 
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-
-    if (outcome === 'accepted') {
-        console.log('PWA installed successfully');
+  if (!isMobileDevice()) {
+    // Desktop: show message
+    note.textContent = "Open this site on your mobile phone to install our PWA.";
+    note.style.display = "block";
+    installBtn.style.display = "none";
+  } else {
+    // Mobile: hide note, but button only if prompt ready
+    note.style.display = "none";
+    if (deferredPrompt) {
+      installBtn.classList.remove("hidden");
     } else {
-        console.log('PWA installation dismissed');
+      installBtn.classList.add("hidden");
     }
-
-    deferredPrompt = null; // reset prompt
+  }
 }
 
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('PWA Landing Page Loaded');
-    updateUI();
+// Handle install button click
+document.getElementById("installBtn").addEventListener("click", async () => {
+  if (!deferredPrompt) return;
 
-    const installButton = document.getElementById('installBtn');
-    if (installButton) {
-        installButton.addEventListener('click', installPWA);
-    }
-
-    // Update UI when resizing (desktop ↔ mobile switch)
-    window.addEventListener('resize', updateUI);
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === "accepted") {
+    console.log("App installed!");
+  }
+  deferredPrompt = null;
+  updateUI();
 });
 
-// Capture install prompt event
-window.addEventListener('beforeinstallprompt', (e) => {
-    console.log('PWA install prompt available');
-    e.preventDefault();
-    deferredPrompt = e;
-    updateUI();
+// Listen for prompt availability
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  console.log("Install prompt captured ✅");
+  updateUI();
 });
 
-// Listen for successful install
-window.addEventListener('appinstalled', () => {
-    console.log('PWA installed');
-});
+// Run on load
+document.addEventListener("DOMContentLoaded", updateUI);
