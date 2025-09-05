@@ -111,7 +111,7 @@ function setLanguage(lang) {
 function redirectToCorrectLanguage() {
     const currentLang = getCurrentLanguage();
     const currentPath = window.location.pathname;
-    
+
     // Check if we're in the correct language folder
     if (currentLang === 'en' && !currentPath.includes('/en/')) {
         // Redirect to English version
@@ -124,25 +124,26 @@ function redirectToCorrectLanguage() {
     }
 }
 
+// Function to switch language
 function switchLanguage(newLang) {
     setLanguage(newLang);
     const currentPath = window.location.pathname;
     let newPath;
-    
+
     if (newLang === 'en') {
         newPath = currentPath.replace('/ms/', '/en/');
     } else {
         newPath = currentPath.replace('/en/', '/ms/');
     }
-    
+
     window.location.href = newPath;
 }
 
 // Initialize language system on page load
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Auto-redirect to correct language if needed
     redirectToCorrectLanguage();
-    
+
     // Initialize settings page if it exists
     initializeLanguageSettings();
 });
@@ -199,3 +200,5 @@ function initializeLanguageSettings() {
         });
     });
 }
+
+// -----------End of redirect to changing language function-------------- //
