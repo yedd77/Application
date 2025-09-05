@@ -23,7 +23,7 @@ function updateUI() {
     } else {
       // Show button anyway with fallback message for testing
       installBtn.style.display = "block";
-      installBtn.textContent = "Install PWA (waiting for prompt...)";
+      installBtn.textContent = "Install PWA";
     }
   }
 }
