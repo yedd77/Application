@@ -10,18 +10,20 @@ function updateUI() {
   const note = document.querySelector('.note');
   const installBtn = document.getElementById('installBtn');
 
+  console.log('Mobile:', isMobileDevice(), 'DeferredPrompt:', !!deferredPrompt);
+
   if (!isMobileDevice()) {
-    // Desktop: show message
     note.textContent = "Open this site on your mobile phone to install our PWA.";
     note.style.display = "block";
     installBtn.style.display = "none";
   } else {
-    // Mobile
     note.style.display = "none";
     if (deferredPrompt) {
       installBtn.style.display = "block";  
     } else {
-      installBtn.style.display = "none";    
+      // Show button anyway with fallback message for testing
+      installBtn.style.display = "block";
+      installBtn.textContent = "Install PWA (waiting for prompt...)";
     }
   }
 }
