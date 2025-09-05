@@ -196,7 +196,11 @@
         // Create recyclable label
         const recyclableLabel = document.createElement('div');
         recyclableLabel.className = 'recyclable-label';
-        recyclableLabel.textContent = 'Boleh DiKitar Semula';
+        recyclableLabel.textContent = 'Kitar Semula';
+
+        recyclableLabel.style.whiteSpace = 'nowrap';
+        recyclableLabel.style.overflow = 'hidden';
+        recyclableLabel.style.textOverflow = 'ellipsis';
 
         // Add both labels to bounding box
         boundingBox.appendChild(label);
@@ -231,7 +235,11 @@
         bestPrediction.name = bestPrediction.name.toLowerCase();
 
         // Pass the prediction name as URL parameter
-        window.location.href = `trash-guide.html?type=${bestPrediction.name}`;
+        if (bestPrediction.name == "glass" || bestPrediction.name == "metal") {
+            window.location.href = `trash-guide.html?type=metalOrGlass`;
+        } else {
+            window.location.href = `trash-guide.html?type=${bestPrediction.name}`;
+        }
     }
 
     // Redraw bounding boxes on window resize
@@ -254,4 +262,3 @@
 </script>
 
 </html>
-

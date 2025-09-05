@@ -218,7 +218,11 @@
         bestPrediction.name = bestPrediction.name.toLowerCase();
 
         // Pass the prediction name as URL parameter
-        window.location.href = `trash-guide.html?type=${bestPrediction.name}`;
+        if(bestPrediction.name == "glass" || bestPrediction.name == "metal"){
+            window.location.href = `trash-guide.html?type=metalOrGlass`;
+        } else {
+            window.location.href = `trash-guide.html?type=${bestPrediction.name}`;
+        }
     }
 
     // Redraw bounding boxes on window resize
@@ -241,3 +245,4 @@
 </script>
 
 </html>
+

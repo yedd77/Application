@@ -17,7 +17,6 @@ body {
 
 .container {
     text-align: center;
-    max-width: 600px;
     width: 100%;
     position: absolute;
     padding: 20px 20px;
@@ -32,7 +31,7 @@ body {
     justify-content: center;
     color: #666;
     font-size: 18px;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
     line-height: 1.4;
 }
 
@@ -41,14 +40,43 @@ body {
     align-items: center;
     justify-content: center;
     color: #9ACD32;
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 600;
-    margin-bottom: 20px;
 }
 
 .container img {
-    width: 40%;
+    width: 20%;
     margin-bottom: 20px;
+}
+
+.install-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.install-btn {
+    display: none;
+    background-color: rgb(128, 188, 68);
+    color: rgb(255, 255, 255);
+    width: 100%;
+    max-width: 200px;
+    border-radius: 20px;
+    padding: 12px 15px;
+    font-size: 16px;
+    border: 0;
+}
+
+.install-section .note {
+    font-size: 14px;
+    font-weight: 300;
+    display: none;
+}
+
+#or{
+    font-size: 14px;
+    font-weight: 300;
 }
 
 /* -----------------------------------End of styling for index.html------------------------------------ */
@@ -793,7 +821,7 @@ body {
 
 /* -----------------------------------Start of styling for setting.html----------------------------------- */
 
-.setting-container h2{
+.setting-container h2 {
     font-size: 24px;
     color: #2d3748;
     margin-bottom: 5px;
