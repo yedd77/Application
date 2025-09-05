@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../script.js"></script>
+    <title>NeuroSort</title> <!-- Title of the website -->
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header">
+        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+        <div class="logo">NeuroSort</div>
+        <img src="../Images/logo.png" alt="NeuroSort Logo">
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="../Images/logo.png" alt="NeuroSort Logo">
+            <div class="top-name">NeuroSort</div>
+        </div>
+        <nav class="nav-menu">
+            <a href="application.html" class="nav-item">
+                <i>🏠</i>
+                <span>Home</span>
+            </a>
+            <a href="https://wa.me/60123456789" class="nav-item">
+                <i>❓</i>
+                <span>Contact Us</span>
+            </a>
+            <a href="setting.html" class="nav-item">
+                <i>⚙️</i>
+                <span>Settings</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Features -->
+        <div class="features">
+            <div class="feature-card" onclick="openSite('ai-scanner')">
+                <img src="../Images/ai.png" alt="AI Scanner icon" class="feature-icon">
+                <h3 class="feature-title">AI Scanner</h3>
+                <p class="feature-description">Instantly identify and classify trash using your camera.</p>
+            </div>
+
+            <div class="feature-card" onclick="openSite('trash-menu')">
+                <img src="../Images/trash.png" alt="Trash Info icon" class="feature-icon">
+                <h3 class="feature-title">Trash Info</h3>
+                <p class="feature-description">Learn details on how to recycle specific items.</p>
+            </div>
+            <div class="feature-card" onclick="openSite('sorting-menu')">
+                <img src="../Images/guide.png" alt="Sorting Guide icon" class="feature-icon">
+                <h3 class="feature-title">Sorting Guide</h3>
+                <p class="feature-description">A quick guide on which colored bin to use for your waste.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fixed Bottom Left Image -->
+    <div class="bottom-left-image">
+        <img src="../Images/BG.png" alt="Nature" />
+    </div>
+
+    <!-- Footer Tab Bar -->
+    <div class="footer-tab-bar">
+        <span>Be Smart, Be Green, Be NeuroSort</span>
+    </div>
+</body>
+<script>
+    function openSite(feature) {
+        window.location.href = `${feature}.html`;
+    }
+</script>
+
+</html>

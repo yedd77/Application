@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../script.js"></script>
+    <title>NeuroSort</title> <!-- Title of the website -->
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header">
+        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+        <div class="logo">NeuroSort</div>
+        <img src="../Images/logo.png" alt="NeuroSort Logo">
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="../Images/logo.png" alt="NeuroSort Logo">
+            <div class="top-name">NeuroSort</div>
+        </div>
+        <nav class="nav-menu">
+            <a href="application.html" class="nav-item">
+                <i>🏠</i>
+                <span>Utama</span>
+            </a>
+            <a href="https://wa.me/60123456789" class="nav-item">
+                <i>❓</i>
+                <span>Hubungi Kami</span>
+            </a>
+            <a href="setting.html" class="nav-item">
+                <i>⚙️</i>
+                <span>Tetapan</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="menu-header">
+            <h1>Maklumat Sampah</h1>
+            <p>Ketik pada kategori untuk belajar lebih lanjut</p> 
+        </div>
+
+        <div class="menu-categories">
+            <button class="category-button" onclick="openDetail('paper')">
+                <div class="category-content">
+                    <div class="category-icon paper-icon">
+                        <img src="../Images/paper icon.png" alt="Paper">
+                    </div>
+                    <div class="category-info">
+                        <h3>Kertas</h3>
+                        <p>Surat Khabar, Kotak, kertas pejabat</p>
+                    </div>
+                </div>
+                <div class="arrow">›</div>
+            </button>
+
+            <button class="category-button" onclick="openDetail('metal')">
+                <div class="category-content">
+                    <div class="category-icon metal-icon">
+                        <img src="../Images/metal icon.png" alt="Metal">
+                    </div>
+                    <div class="category-info">
+                        <h3>Besi</h3>
+                        <p>Tin, bekas, aluminium foil</p> 
+                    </div>
+                </div>
+                <div class="arrow">›</div>
+            </button>
+
+            <button class="category-button" onclick="openDetail('plastic')">
+                <div class="category-content">
+                    <div class="category-icon plastic-icon">
+                        <img src="../Images/plastic icon.png" alt="Plastic">
+                    </div>
+                    <div class="category-info">
+                        <h3>Plastik</h3>
+                        <p>Botol, beg, bekas makanan</p> 
+                    </div>
+                </div>
+                <div class="arrow">›</div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Fixed Bottom Left Image -->
+    <div class="bottom-left-image">
+        <img src="../Images/BG.png" alt="Nature" />
+    </div>
+
+    <!-- Footer Tab Bar -->
+    <div class="footer-tab-bar">
+        <span>Bijak Lestari, Bijak Neurosort</span>
+    </div>
+
+    <script>
+        function openDetail(type) {
+            // Redirect to the detail page for the selected category
+            window.location.href = `trash-guide.html?type=${type}`;
+        }
+    </script>
+</body>
+
+</html>
+

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../script.js"></script>
+    <title>NeuroSort</title> <!-- Title of the website -->
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header">
+        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+        <div class="logo">NeuroSort</div>
+        <img src="../Images/logo.png" alt="NeuroSort Logo">
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="../Images/logo.png" alt="NeuroSort Logo">
+            <div class="top-name">NeuroSort</div>
+        </div>
+        <nav class="nav-menu">
+            <a href="application.html" class="nav-item">
+                <i>🏠</i>
+                <span>Home</span>
+            </a>
+            <a href="https://wa.me/60123456789" class="nav-item">
+                <i>❓</i>
+                <span>Contact Us</span>
+            </a>
+            <a href="setting.html" class="nav-item">
+                <i>⚙️</i>
+                <span>Settings</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="menu-header">
+            <h1>Sorting Guide</h1>
+            <p>Tap a bin category to learn more</p>
+        </div>
+
+        <div class="menu-categories">
+            <button class="category-button" onclick="openDetail('blue')">
+                <div class="category-content">
+                    <div class="bin-menu-icon">
+                        <img src="../Images/blue-bin-BG.png" alt="blue-bin">
+                    </div>
+                    <div class="category-info">
+                        <h3>Blue Bins</h3>
+                    </div>
+                </div>
+                <div class="arrow">›</div>
+            </button>
+
+            <button class="category-button" onclick="openDetail('orange')">
+                <div class="category-content">
+                    <div class="bin-menu-icon">
+                        <img src="../Images/orange-bin-BG.png" alt="orange-bin">
+                    </div>
+                    <div class="category-info">
+                        <h3>Orange Bin</h3>
+                    </div>
+                </div>
+                <div class="arrow">›</div>
+            </button>
+
+            <button class="category-button" onclick="openDetail('brown')">
+                <div class="category-content">
+                    <div class="bin-menu-icon">
+                        <img src="../Images/brown-bin-BG.png" alt="brown-bin">
+                    </div>
+                    <div class="category-info">
+                        <h3>Brown Bin</h3>
+                    </div>
+                </div>
+                <div class="arrow">›</div>
+            </button>
+
+            <button class="category-button" onclick="openDetail('black')">
+                <div class="category-content">
+                    <div class="bin-menu-icon">
+                        <img src="../Images/black-bin-BG.png" alt="black-bin">
+                    </div>
+                    <div class="category-info">
+                        <h3>Black Bin</h3>
+                    </div>
+                </div>
+                <div class="arrow">›</div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Fixed Bottom Left Image -->
+    <div class="bottom-left-image">
+        <img src="../Images/BG.png" alt="Nature" />
+    </div>
+
+    <!-- Footer Tab Bar -->
+    <div class="footer-tab-bar">
+        <span>Be Smart, Be Green, Be NeuroSort</span>
+    </div>
+
+    <script>
+        function openDetail(binColor) {
+            // Redirect to the detail page for the selected category
+            window.location.href = `sorting-guide.html?type=${binColor}`;
+        }
+    </script>
+</body>
+
+</html>

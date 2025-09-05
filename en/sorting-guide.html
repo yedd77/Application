@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../script.js"></script>
+    <title>NeuroSort</title> <!-- Title of the website -->
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header">
+        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+        <div class="logo">NeuroSort</div>
+        <img src="../Images/logo.png" alt="NeuroSort Logo">
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="../Images/logo.png" alt="NeuroSort Logo">
+            <div class="top-name">NeuroSort</div>
+        </div>
+        <nav class="nav-menu">
+            <a href="application.html" class="nav-item">
+                <i>🏠</i>
+                <span>Home</span>
+            </a>
+            <a href="https://wa.me/60123456789" class="nav-item">
+                <i>❓</i>
+                <span>Contact Us</span>
+            </a>
+            <a href="setting.html" class="nav-item">
+                <i>⚙️</i>
+                <span>Settings</span>
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="bin-container">
+            <img src="" alt="Bin Images" class="bin-image">
+            <h1 id="bin-colors">Bin Colors</h1>
+            <p id="bin-description">Bin Description</p>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Footer Tab Bar -->
+    <div class="footer-tab-bar">
+        <span>Be Smart, Be Green, Be NeuroSort</span>
+    </div>
+</body>
+
+<script>
+
+    const items = {
+        blue: {
+            color: "Blue Bin",
+            description: "The blue recycling bin is primarily used for paper and cardboard items, such as newspapers, magazines, greeting cards, and paper-based packaging. However, the specific types of accepted materials may vary depending on local municipal recycling guidelines.",
+            image: "../Images/blue-bin.png"
+        },
+        orange: {
+            color: "Orange Bin",
+            description: "An orange recycle bin is used for collecting certain recyclable materials, most commonly plastics and metals (such as aluminum and steel cans, plastic bottles, and food/drink cartons).",
+            image: "../Images/orange-bin.png"
+        },
+        brown: {
+            color: "Brown Bin",
+            description: "In Malaysia, a brown recycling bin is generally used for glass and metal items. What goes in a brown recycling bin (examples): Glass bottles and jars, Food tins and drink cans, Empty aerosol cans, Metal bottle caps and lids, and Foil and foil trays.",
+            image: "../Images/brown-bin.png"
+        },
+        black: {
+            color: "Black Bin",
+            description: "The black bin is used for general waste that cannot be recycled or composted. Items disposed of in the black bin usually include non-recyclable plastics, food-contaminated packaging, broken household items, disposable diapers, and other residual waste. The contents of this bin are typically sent to landfill or incineration facilities",
+            image: "../Images/black-bin.png"
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+        const type = params.get("type");
+
+        if (type && items[type]) {
+            const item = items[type];
+            document.querySelector(".bin-image").src = item.image;
+            document.getElementById("bin-colors").textContent = item.color;
+            document.getElementById("bin-description").textContent = item.description;
+        }
+    });
+</script>
+
+</html>
+

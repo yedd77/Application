@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../script.js"></script>
+    <title>NeuroSort</title> <!-- Title of the website -->
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header">
+        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+        <div class="logo">NeuroSort</div>
+        <img src="../Images/logo.png" alt="NeuroSort Logo">
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="../Images/logo.png" alt="NeuroSort Logo">
+            <div class="top-name">NeuroSort</div>
+        </div>
+        <nav class="nav-menu">
+            <a href="application.html" class="nav-item">
+                <i>🏠</i>
+                <span>Home</span>
+            </a>
+            <a href="https://wa.me/60123456789" class="nav-item">
+                <i>❓</i>
+                <span>Contact Us</span>
+            </a>
+            <a href="setting.html" class="nav-item">
+                <i>⚙️</i>
+                <span>Settings</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="main-content">
+        <div class="items">
+            <div class="item-img">
+                <img src="" alt="Guide Icon">
+            </div>
+            <h1>Item Type</h1>
+            <div class="status">
+                <span class="status-text">Recycle Status</span>
+            </div>
+            <p>
+                Item Description
+            </p>
+            <h2>How to Recycle?</h2>
+            <p>
+                Recycling Instructions
+            </p>
+            <div class="tag">
+                <span id="binLabel">Bin</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Tab Bar -->
+    <div class="footer-tab-bar">
+        <span>Be Smart, Be Green, Be NeuroSort</span>
+    </div>
+
+</body>
+
+<script>
+    const items = {
+        paper: {
+            type: "Paper",
+            status: "Recyclable",
+            desc: "Paper is made from wood or recycled materials and is easily recyclable, helping conserve resources and protect the environment.",
+            instructions: "Collect clean, dry paper and place it in the blue recycling bin or designated collection points.",
+            bin: "Blue Bin",
+            color: "#4687f1",
+            image: "../Images/paper-guide.png"
+        },
+        metal: {
+            type: "Metal",
+            status: "Recyclable",
+            desc: "Drink cans are usually made of aluminium or steel, both highly recyclable. Recycling them reduces waste, saves energy, and conserves resources, but different cans require different recycling processes.",
+            instructions: "To recycle aluminium cans, simply empty, rinse, crush (optional), and place them in a designated recycling bin or collection point.",
+            bin: "Brown Bin",
+            color: "#846958",
+            image: "../Images/metal-guide.png"
+        },
+        plastic: {
+            type: "Plastic",
+            status: "Recyclable",
+            desc: "Recycled plastic turns waste into raw materials for new products, helping save resources, reduce pollution, and support sustainability.",
+            instructions: "Collect clean, dry plastic bags and drop them at designated recycling bins or collection points.",
+            bin: "Orange Bin",
+            color: "#fa8122",
+            image: "../Images/plastic-guide.png"
+        },
+        trash: {
+            type: "Trash",
+            status: "Non-recyclable",
+            desc: "General waste consists of items that cannot be recycled or composted. This includes contaminated packaging, used tissues, broken ceramics, and other non-recyclable materials. Disposing of them properly helps keep recyclable streams clean.",
+            instructions: "Place general trash in a sealed bag and put it into the designated bin for non-recyclable waste. Do not mix with recyclables.",
+            bin: "Black Bin",
+            color: "#232323",
+            image: "../Images/trash-guide.png"
+        }
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+        const type = params.get("type");
+
+        if (type && items[type]) {
+            const item = items[type];
+            document.querySelector(".item-img img").src = item.image;
+            document.querySelector("h1").textContent = item.type;
+            document.querySelector(".status-text").textContent = item.status;
+            document.querySelector("p").textContent = item.desc;
+            document.querySelector("h2 + p").textContent = item.instructions;
+            document.getElementById("binLabel").textContent = item.bin;
+            document.querySelector(".tag").style.backgroundColor = item.color;
+        }
+    });
+
+</script>
+
+</html>
+

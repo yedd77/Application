@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../script.js"></script>
+    <title>NeuroSort</title> <!-- Title of the website -->
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header">
+        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+        <div class="logo">NeuroSort</div>
+        <img src="../Images/logo.png" alt="NeuroSort Logo">
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="../Images/logo.png" alt="NeuroSort Logo">
+            <div class="top-name">NeuroSort</div>
+        </div>
+        <nav class="nav-menu">
+            <a href="application.html" class="nav-item">
+                <i>🏠</i>
+                <span>Utama</span>
+            </a>
+            <a href="https://wa.me/60123456789" class="nav-item">
+                <i>❓</i>
+                <span>Hubungi Kami</span>
+            </a>
+            <a href="setting.html" class="nav-item">
+                <i>⚙️</i>
+                <span>Tetapan</span>
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="bin-container">
+            <img src="" alt="Bin Images" class="bin-image">
+            <h1 id="bin-colors">Warna Tong</h1>
+            <p id="bin-description">Penerangan Tong</p>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Footer Tab Bar -->
+    <div class="footer-tab-bar">
+        <span>Bijak Lestari, Bijak Neurosort</span> 6
+    </div>
+</body>
+
+<script>
+
+    const items = {
+        blue: {
+            color: "Tong Biru",
+            description: "Tong kitar semula berwarna biru digunakan terutamanya untuk kertas dan kadbod, seperti surat khabar, majalah, kad ucapan, dan pembungkusan berasaskan kertas. Walau bagaimanapun, jenis bahan yang diterima mungkin berbeza bergantung pada garis panduan kitar semula pihak berkuasa tempatan.",
+            image: "../Images/blue-bin.png"
+        },
+        orange: {
+            color: "Tong Oren",
+            description: "Tong kitar semula berwarna oren digunakan untuk mengumpul bahan kitar semula tertentu, biasanya plastik dan logam (seperti tin aluminium dan keluli, botol plastik, dan kotak makanan/minuman).",
+            image: "../Images/orange-bin.png"
+        },
+        brown: {
+            color: "Tong Coklat",
+            description: "Di Malaysia, tong kitar semula berwarna coklat biasanya digunakan untuk barangan kaca dan logam. Contoh bahan yang boleh dimasukkan: Botol dan balang kaca, Tin makanan dan minuman, Tin aerosol kosong, Penutup dan tudung logam, serta Alu dan dulang aluminium.",
+            image: "../Images/brown-bin.png"
+        },
+        black: {
+            color: "Tong Hitam",
+            description: "Tong hitam digunakan untuk sisa umum yang tidak boleh dikitar semula atau dikompos. Barang yang dibuang di tong hitam biasanya termasuk plastik yang tidak boleh dikitar semula, pembungkusan tercemar makanan, barangan rumah yang pecah, lampin pakai buang, dan sisa lain. Kandungan tong ini biasanya dihantar ke tapak pelupusan atau kemudahan pembakaran.",
+            image: "../Images/black-bin.png"
+        }
+    };
+    document.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+        const type = params.get("type");
+
+        if (type && items[type]) {
+            const item = items[type];
+            document.querySelector(".bin-image").src = item.image;
+            document.getElementById("bin-colors").textContent = item.color;
+            document.getElementById("bin-description").textContent = item.description;
+        }
+    });
+</script>
+
+</html>

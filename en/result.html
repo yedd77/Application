@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../script.js"></script>
+    <title>NeuroSort</title> <!-- Title of the website -->
+</head>
+
+<body>
+    <div id="error" class="error" style="display: none;">
+        <h2>Error</h2>
+        <p>No detection data found. Please go back and scan an image.</p>
+        <button class="error-button" onclick="goBack()">Go Back</button>
+    </div>
+
+    <div id="result" style="display: none;">
+        <div class="result-wrapper">
+            <div class="background-layer">
+                <img id="backgroundImage" class="background-image" alt="">
+            </div>
+
+            <div class="result-container">
+                <div class="image-wrapper">
+                    <img id="resultImage" class="result-image" alt="Detection Result">
+                    <div id="boundingBoxes" class="bounding-boxes"></div>
+                </div>
+            </div>
+            <button class="next-button" onclick="goToNextPage()">Next</button>
+        </div>
+    </div>
+</body>
+<script>
+    // Define everything at the top
+    const DETECTION_COLORS = {
+        'paper': '#237db2',
+        'plastic': '#e4861b',
+        'metal': '#99612d',
+        'glass': '#99612d'
+    };
+
+    // Function to get color based on detection name
+    function getDetectionColor(prediction) {
+        const name = prediction.name.toLowerCase();
+        console.log("Detection name:", prediction.name, "→ lowercase:", name, "→ color:", DETECTION_COLORS[name]);
+        return DETECTION_COLORS[name] || '#00ff00';
+    }
+
+    // Function to get the prediction with the highest confidence
+    function getHighestConfidencePrediction(predictions) {
+        if (!predictions || predictions.length === 0) return null;
+
+        // Sort by confidence descending and return the first (highest)
+        const sortedPredictions = predictions.sort((a, b) => b.confidence - a.confidence);
+        console.log("All predictions:", predictions);
+        console.log("Highest confidence prediction:", sortedPredictions[0]);
+        return sortedPredictions[0];
+    }
+
+    // Load image and predictions from storage
+    function loadResults() {
+        try {
+            const imageData = sessionStorage.getItem("uploadedImage");
+            const predictionData = localStorage.getItem("prediction");
+
+            if (!imageData || !predictionData) {
+                showError();
+                return;
+            }
+
+            const predictions = JSON.parse(predictionData);
+            console.log("Loaded predictions:", predictions);
+            setupImageAndDetections(imageData, predictions);
+
+        } catch (error) {
+            console.error("Error loading results:", error);
+            showError();
+        }
+    }
+
+    // Setup image and draw bounding boxes
+    function setupImageAndDetections(imageData, predictions) {
+        const resultImage = document.getElementById('resultImage');
+        const backgroundImage = document.getElementById('backgroundImage');
+        const boundingBoxesContainer = document.getElementById('boundingBoxes');
+
+        backgroundImage.src = imageData;
+
+        resultImage.onload = function () {
+            console.log("Main image loaded");
+            document.getElementById('result').style.display = 'block';
+
+            requestAnimationFrame(() => {
+                drawBoundingBox(resultImage, boundingBoxesContainer, predictions);
+            });
+        };
+
+        resultImage.onerror = function () {
+            console.error("Failed to load main image");
+            showError();
+        };
+
+        resultImage.src = imageData;
+    }
+
+    // Draw bounding box for the highest confidence prediction
+    function drawBoundingBox(imageElement, container, predictions) {
+        container.innerHTML = '';
+
+        // Get only the highest confidence prediction
+        const bestPrediction = getHighestConfidencePrediction(predictions);
+        if (!bestPrediction) {
+            console.log("No valid predictions found");
+            return;
+        }
+
+        const imageRect = imageElement.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+
+        const naturalWidth = imageElement.naturalWidth;
+        const naturalHeight = imageElement.naturalHeight;
+
+        const displayedWidth = imageRect.width;
+        const displayedHeight = imageRect.height;
+
+        const scaleX = displayedWidth / naturalWidth;
+        const scaleY = displayedHeight / naturalHeight;
+
+        const offsetX = (containerRect.width - displayedWidth) / 2;
+        const offsetY = (containerRect.height - displayedHeight) / 2;
+
+        console.log("Image dimensions:", {
+            natural: { width: naturalWidth, height: naturalHeight },
+            displayed: { width: displayedWidth, height: displayedHeight },
+            scale: { x: scaleX, y: scaleY },
+            offset: { x: offsetX, y: offsetY }
+        });
+
+        // Draw only the best prediction
+        const box = bestPrediction.box;
+        if (!box) return;
+
+        const scaledX1 = box.x1 * scaleX + offsetX;
+        const scaledY1 = box.y1 * scaleY + offsetY;
+        const scaledX2 = box.x2 * scaleX + offsetX;
+        const scaledY2 = box.y2 * scaleY + offsetY;
+
+        const boxWidth = scaledX2 - scaledX1;
+        const boxHeight = scaledY2 - scaledY1;
+
+        const boundingBox = document.createElement('div');
+        boundingBox.className = 'bounding-box';
+
+        // Get color for this detection
+        const color = getDetectionColor(bestPrediction);
+        boundingBox.style.borderColor = color;
+        boundingBox.style.backgroundColor = color + '26';
+        boundingBox.style.boxShadow = `0 0 15px ${color}99`;
+
+        boundingBox.style.left = scaledX1 + 'px';
+        boundingBox.style.top = scaledY1 + 'px';
+        boundingBox.style.width = boxWidth + 'px';
+        boundingBox.style.height = boxHeight + 'px';
+
+        // Create main label
+        const label = document.createElement('div');
+        label.className = 'box-label';
+        label.style.backgroundColor = color + 'F2';
+        label.style.borderColor = color;
+
+        const confidence = Math.round(bestPrediction.confidence * 100);
+        label.textContent = `${bestPrediction.name}`;
+
+        // Position label (above or below box based on available space)
+        if (scaledY1 > 45) {
+            label.style.top = '-35px';
+        } else {
+            label.classList.add('label-below');
+        }
+
+        // Create recyclable label
+        const recyclableLabel = document.createElement('div');
+        recyclableLabel.className = 'recyclable-label';
+        recyclableLabel.textContent = 'Recyclable';
+
+        // Add both labels to bounding box
+        boundingBox.appendChild(label);
+        boundingBox.appendChild(recyclableLabel);
+        container.appendChild(boundingBox);
+
+        console.log("Best prediction box:", {
+            prediction: bestPrediction,
+            original: box,
+            scaled: { x1: scaledX1, y1: scaledY1, x2: scaledX2, y2: scaledY2 },
+            dimensions: { width: boxWidth, height: boxHeight }
+        });
+    }
+
+    // Show error message
+    function showError() {
+        document.getElementById('error').style.display = 'flex';
+    }
+
+    // Navigation to previous page
+    function goBack() {
+        window.history.back();
+    }
+
+    // Navigation to next page
+    function goToNextPage() {
+        const predictionData = localStorage.getItem("prediction");
+        const predictions = JSON.parse(predictionData);
+        const bestPrediction = getHighestConfidencePrediction(predictions);
+
+        //lower case the name to match the expected URL parameter
+        bestPrediction.name = bestPrediction.name.toLowerCase();
+
+        // Pass the prediction name as URL parameter
+        window.location.href = `trash-guide.html?type=${bestPrediction.name}`;
+    }
+
+    // Redraw bounding boxes on window resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            const resultImage = document.getElementById('resultImage');
+            const boundingBoxesContainer = document.getElementById('boundingBoxes');
+            const predictionData = localStorage.getItem("prediction");
+
+            if (resultImage && boundingBoxesContainer && predictionData) {
+                const predictions = JSON.parse(predictionData);
+                drawBoundingBox(resultImage, boundingBoxesContainer, predictions);
+            }
+        }, 250);
+    });
+
+    document.addEventListener('DOMContentLoaded', loadResults);
+</script>
+
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../script.js"></script>
+    <title>NeuroSort</title> <!-- Title of the website -->
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header">
+        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+        <div class="logo">NeuroSort</div>
+        <img src="../Images/logo.png" alt="NeuroSort Logo">
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="../Images/logo.png" alt="NeuroSort Logo">
+            <div class="top-name">NeuroSort</div>
+        </div>
+        <nav class="nav-menu">
+            <a href="application.html" class="nav-item">
+                <i>🏠</i>
+                <span>Utama</span>
+            </a>
+            <a href="https://wa.me/60123456789" class="nav-item">
+                <i>❓</i>
+                <span>Hubungi Kami</span>
+            </a>
+            <a href="setting.html" class="nav-item">
+                <i>⚙️</i>
+                <span>Tetapan</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="main-content">
+        <div class="items">
+            <div class="item-img">
+                <img src="" alt="Guide Icon">
+            </div>
+            <h1>Jenis Barang</h1>
+            <div class="status">
+                <span class="status-text">Status Kitar Semula</span>
+            </div>
+            <p>
+                Penerangan Item
+            </p>
+            <h2>Cara untuk kitar semula?</h2>
+            <p>
+                Arahan Kitar Semula
+            </p>
+            <div class="tag">
+                <span id="binLabel">Tong</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Tab Bar -->
+    <div class="footer-tab-bar">
+        <span>Bijak Lestari, Bijak Neurosort</span> 
+    </div>
+
+</body>
+
+<script>
+    const items = {
+        paper: {
+            type: "Kertas",
+            status: "Boleh Dikitar Semula",
+            desc: "Kertas diperbuat daripada kayu atau bahan kitar semula dan mudah dikitar semula, membantu menjimatkan sumber dan melindungi alam sekitar.",
+            instructions: "Kumpulkan kertas yang bersih dan kering dan letakkan di tong kitar semula biru atau di titik pengumpulan yang ditetapkan.",
+            bin: "Tong Biru",
+            color: "#4687f1",
+            image: "../Images/paper-guide.png"
+        },
+        metal: {
+            type: "Logam",
+            status: "Boleh Dikitar Semula",
+            desc: "Tin minuman biasanya diperbuat daripada aluminium atau keluli, kedua-duanya mudah dikitar semula. Mengitar semula mereka mengurangkan sisa, menjimatkan tenaga, dan memelihara sumber, tetapi tin yang berbeza memerlukan proses kitar semula yang berbeza.",
+            instructions: "Untuk mengitar semula tin aluminium, kosongkan, bilas, hancurkan (pilihan), dan letakkan di tong kitar semula atau titik pengumpulan yang ditetapkan.",
+            bin: "Tong Coklat",
+            color: "#846958",
+            image: "../Images/metal-guide.png"
+        },
+        plastic: {
+            type: "Plastik",
+            status: "Boleh Dikitar Semula",
+            desc: "Plastik yang dikitar semula menukar sisa menjadi bahan mentah untuk produk baru, membantu menjimatkan sumber, mengurangkan pencemaran, dan menyokong kelestarian.",
+            instructions: "Kumpulkan beg plastik yang bersih dan kering dan letakkan di tong kitar semula atau titik pengumpulan yang ditetapkan.",
+            bin: "Tong Oren",
+            color: "#fa8122",
+            image: "../Images/plastic-guide.png"
+        },
+        trash: {
+            type: "Sampah",
+            status: "Tidak Boleh Dikitar Semula",
+            desc: "Sisa umum terdiri daripada barang yang tidak boleh dikitar semula atau dikompos. Ini termasuk pembungkusan yang tercemar, tisu terpakai, seramik pecah, dan bahan lain yang tidak boleh dikitar semula. Melupuskan dengan betul membantu mengekalkan kebersihan aliran kitar semula.",
+            instructions: "Letakkan sampah umum dalam beg yang ditutup dan masukkan ke dalam tong yang ditetapkan untuk sisa tidak boleh dikitar semula. Jangan campur dengan bahan kitar semula.",
+            bin: "Tong Hitam",
+            color: "#232323",
+            image: "../Images/trash-guide.png" 
+        }
+    };
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+        const type = params.get("type");
+
+        if (type && items[type]) {
+            const item = items[type];
+            document.querySelector(".item-img img").src = item.image;
+            document.querySelector("h1").textContent = item.type;
+            document.querySelector(".status-text").textContent = item.status;
+            document.querySelector("p").textContent = item.desc;
+            document.querySelector("h2 + p").textContent = item.instructions;
+            document.getElementById("binLabel").textContent = item.bin;
+            document.querySelector(".tag").style.backgroundColor = item.color;
+        }
+    });
+
+</script>
+
+</html>

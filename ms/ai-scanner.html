@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/heic2any/dist/heic2any.min.js"></script>
+    <title>NeuroSort</title> <!-- Title of the website -->
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header">
+        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+        <div class="logo">NeuroSort</div>
+        <img src="../Images/logo.png" alt="NeuroSort Logo">
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="../Images/logo.png" alt="NeuroSort Logo">
+            <div class="top-name">NeuroSort</div>
+        </div>
+        <nav class="nav-menu">
+            <a href="application.html" class="nav-item">
+                <i>🏠</i>
+                <span>Utama</span>
+            </a>
+            <a href="https://wa.me/60123456789" class="nav-item">
+                <i>❓</i>
+                <span>Hubungi Kami</span>
+            </a>
+            <a href="setting.html" class="nav-item">
+                <i>⚙️</i>
+                <span>Tetapan</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="upload-container">
+            <h1 class="upload-title">Muat Naik Imej</h1>
+            <p class="upload-subtitle">Pilih fail imej anda di sini</p>
+            <div class="upload-hint">Menyokong JPG, PNG, HEIC</div>
+
+            <button class="browse-btn" onclick="document.getElementById('fileInput').click()">
+                Semak Fail
+            </button>
+
+            <input type="file" id="fileInput" class="file-input" accept="image/*" multiple>
+
+            <div class="file-info" id="fileInfo">
+                <div class="file-name" id="fileName"></div>
+                <div class="file-size" id="fileSize"></div>
+                <img class="preview-image" id="previewImage" alt="Preview">
+            </div>
+
+            <div>
+                <button id="predictBtn" onclick="predict(fileInput.files[0])">Imbas Imej Ini</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Footer Tab Bar -->
+    <div class="footer-tab-bar">
+        <span>Bijak Lestari, Bijak NeuroSort</span>
+    </div>
+</body>
+
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const previewImage = document.getElementById('previewImage');
+    const uploadTitle = document.querySelector('.upload-title');
+    const uploadSubtitle = document.querySelector('.upload-subtitle');
+    const uploadHint = document.querySelector('.upload-hint');
+    const browseBtn = document.querySelector('.browse-btn');
+    const predictBtn = document.getElementById('predictBtn');
+
+    // File input change handler
+    fileInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+    });
+
+    // Function to handle file selection
+    async function handleFiles(files) {
+        if (files.length > 0) {
+            let file = files[0]; 
+
+            // Update UI to show processing state
+            uploadTitle.textContent = "Tunggu Sebentar...";
+            uploadSubtitle.textContent = 'Sila tunggu sementara kami memproses imej anda'; 
+            uploadHint.style.display = 'none';
+            browseBtn.style.display = 'none';
+
+            // Check if file is HEIC/HEIF
+            if (file.type === "image/heic" || file.name.toLowerCase().endsWith(".heic") || file.type === "image/heif") {
+                try {
+
+                    // Convert HEIC to JPEG
+                    const convertedBlob = await heic2any({
+                        blob: file,
+                        toType: "image/jpeg",  // or "image/png"
+                        quality: 0.9
+                    });
+                    // Replace file with converted one
+                    file = new File([convertedBlob], file.name.replace(/\.heic$/i, ".jpg"), { type: "image/jpeg" });
+                } catch (e) {
+                    alert("Gagal menukar format imej"); 
+                    console.error(e);
+                    return;
+                }
+            }
+
+            // Check if file is an image
+            if (!file.type.startsWith('image/')) {
+                alert('Sila pilih fail imej.');
+                return;
+            }
+
+            // Check file size (10MB limit)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('Saiz fail mesti kurang daripada 10MB.');
+                return;
+            }
+
+            // Update UI to show file info and enable predict button
+            predictBtn.style.display = 'inline';
+            uploadTitle.textContent = "Pengimbas AI Sedia";
+            uploadSubtitle.textContent = 'Klik "Imbas Imej Ini" untuk meneruskan pengimbasan jenis sampah!';
+
+            displayFileInfo(file);
+        }
+    }
+
+    // Function to display file information and preview
+    function displayFileInfo(file) {
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+
+        // Create preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImage.src = e.target.result;
+            previewImage.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+
+        fileInfo.classList.add('show');
+    }
+
+    // Function to format file size
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+// API Configuration
+const API_ENDPOINT = "https://1d9b8043f9cb.ngrok-free.app/predict";
+
+// Main prediction function
+function predict(file) {
+   
+    // Show loading state
+    showLoadingState();
+
+    // Prepare and send request to server
+    const formData = new FormData();
+    formData.append("file", file);
+
+    // Send POST request to the server
+    fetch(API_ENDPOINT, {
+        method: "POST",
+        body: formData,
+        headers: {
+            'ngrok-skip-browser-warning': 'true'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Server response:", data);
+        
+        // Check if objects were detected
+        const hasDetections = checkForDetections(data);
+        
+        if (hasDetections) {
+            //  Objects detected - save data and redirect
+            saveDataAndRedirect(data, file);
+        } else {
+            // No objects detected - show no detection UI
+            showNoDetectionState();
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        showErrorState();
+    });
+}
+
+// Check if server response contains object detections
+function checkForDetections(data) {
+    // Handle specific API response format
+    if (data && data.success === true && data.predictions && Array.isArray(data.predictions)) {
+        return data.predictions.length > 0;
+    }
+    
+    // Handle direct array format
+    if (Array.isArray(data)) {
+        return data.length > 0;
+    }
+    
+    return false;
+}
+
+// Save response data and image, then redirect to results
+function saveDataAndRedirect(serverResponse, imageFile) {
+    // Extract predictions from your API format
+    const predictions = serverResponse.predictions || serverResponse;
+    
+    // Save predictions to localStorage
+    localStorage.setItem("prediction", JSON.stringify(predictions));
+    
+    // Convert image to base64 and save to sessionStorage
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        sessionStorage.setItem("uploadedImage", e.target.result);
+        // Redirect to results page
+        window.location.href = "result.html";
+    };
+    reader.onerror = function() {
+        console.error("Gagal membaca fail imej");
+        showErrorState();
+    };
+    reader.readAsDataURL(imageFile);
+}
+
+// Show loading state
+function showLoadingState() {
+    updateUI("Mengimbas Imej...", "Sila tunggu sementara kami mengimbas imej anda", false);
+    showLoader();
+}
+
+// Show no detection state
+function showNoDetectionState() {
+    updateUI("Tiada Sampah Dikesan", "Sila cuba lagi dengan imej yang berbeza.", false);
+    hideLoader();
+}
+
+// Show error state
+function showErrorState() {
+    updateUI("Ralat", "Gagal menyambung ke pelayan. Sila cuba lagi.", false);
+    hideLoader();
+}
+
+// Reset to ready state
+function showReadyState() {
+    updateUI("Pengimbas AI Sedia", 'Klik "Imbas Imej Ini" untuk meneruskan pengimbasan jenis sampah!', true);
+    hideLoader();
+}
+
+// Helper function to update UI elements
+function updateUI(title, subtitle, showButton) {
+    const titleElement = document.getElementById("uploadTitle") || document.querySelector(".upload-title");
+    const subtitleElement = document.getElementById("uploadSubtitle") || document.querySelector(".upload-subtitle");
+    const buttonElement = document.getElementById("predictBtn") || document.querySelector(".predict-btn");
+    
+    if (titleElement) titleElement.textContent = title;
+    if (subtitleElement) subtitleElement.textContent = subtitle;
+    if (buttonElement) buttonElement.style.display = showButton ? "inline" : "none";
+}
+
+// Loader functions
+function showLoader() {
+    let loader = document.getElementById("loader-wrapper");
+    if (!loader) {
+        loader = document.createElement("div");
+        loader.id = "loader-wrapper";
+        loader.className = "load-wrapp";
+        loader.innerHTML = `
+            <div class="load">
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+            </div>
+        `;
+        const subtitle = document.getElementById("uploadSubtitle") || document.querySelector(".upload-subtitle");
+        if (subtitle) {
+            subtitle.insertAdjacentElement("afterend", loader);
+        }
+    }
+}
+
+function hideLoader() {
+    const loader = document.getElementById("loader-wrapper");
+    if (loader) {
+        loader.remove();
+    }
+}
+</script>
+
+</html>
+
