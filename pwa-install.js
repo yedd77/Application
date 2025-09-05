@@ -6,7 +6,6 @@ function isMobileDevice() {
          || window.innerWidth <= 768;
 }
 
-// Show message or button depending on device
 function updateUI() {
   const note = document.querySelector('.note');
   const installBtn = document.getElementById('installBtn');
@@ -17,12 +16,12 @@ function updateUI() {
     note.style.display = "block";
     installBtn.style.display = "none";
   } else {
-    // Mobile: hide note, but button only if prompt ready
+    // Mobile
     note.style.display = "none";
     if (deferredPrompt) {
-      installBtn.classList.remove("hidden");
+      installBtn.style.display = "block";  
     } else {
-      installBtn.classList.add("hidden");
+      installBtn.style.display = "none";    
     }
   }
 }
