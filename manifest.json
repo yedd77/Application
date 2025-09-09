@@ -2,6 +2,7 @@
   "name": "NeuroSort",
   "short_name": "NeuroSort",
   "start_url": "Application/en/application.html",
+  "scope": "/Application/",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#79b313",
