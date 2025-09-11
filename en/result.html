@@ -165,19 +165,15 @@
 
     function goToNextPage() {
         const predictionData = localStorage.getItem("prediction");
-        if (!predictionData) return;
-
         const predictions = JSON.parse(predictionData);
         const bestPrediction = getHighestConfidencePrediction(predictions);
 
-        if (!bestPrediction) return;
+        bestPrediction.name = bestPrediction.name.toLowerCase();
 
-        const name = bestPrediction.name.toLowerCase();
-
-        if (name === "glass" || name === "metal") {
+        if (bestPrediction.name === "glass" || bestPrediction.name === "metal") {
             window.location.href = `trash-guide.html?type=metalOrGlass`;
         } else {
-            window.location.href = `trash-guide.html?type=${name}`;
+            window.location.href = `trash-guide.html?type=${bestPrediction.name}`;
         }
     }
 

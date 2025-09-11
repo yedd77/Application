@@ -167,153 +167,152 @@
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
-// API Configuration
-const API_ENDPOINT = "https://b78f4c73ab18.ngrok-free.app/predict";
+    // API Configuration
+    const API_ENDPOINT = "https://b78f4c73ab18.ngrok-free.app/predict";
 
-// Main prediction function
-function predict(file) {
-   
+    // Main prediction function
+    function predict(file) {
+
+        // Show loading state
+        showLoadingState();
+
+        // Prepare and send request to server
+        const formData = new FormData();
+        formData.append("file", file);
+
+        // Send POST request to the server
+        fetch(API_ENDPOINT, {
+            method: "POST",
+            body: formData,
+            headers: {
+                'ngrok-skip-browser-warning': 'true'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Server response:", data);
+
+                // Check if objects were detected
+                const hasDetections = checkForDetections(data);
+
+                if (hasDetections) {
+                    //  Objects detected - save data and redirect
+                    saveDataAndRedirect(data, file);
+                } else {
+                    // No objects detected - show no detection UI
+                    showNoDetectionState();
+                }
+            })
+            .catch(error => {
+                console.error("Request failed:", error);
+                showErrorState();
+            });
+    }
+
+    // Check if server response contains object detections
+    function checkForDetections(data) {
+        // Handle specific API response format
+        if (data && data.success === true && data.predictions && Array.isArray(data.predictions)) {
+            return data.predictions.length > 0;
+        }
+
+        // Handle direct array format
+        if (Array.isArray(data)) {
+            return data.length > 0;
+        }
+
+        return false;
+    }
+
+    // Save response data and image, then redirect to results
+    function saveDataAndRedirect(serverResponse, imageFile) {
+        // Extract predictions from your API format
+        const predictions = serverResponse.predictions || serverResponse;
+
+        // Save predictions to localStorage
+        localStorage.setItem("prediction", JSON.stringify(predictions));
+
+        // Convert image to base64 and save to sessionStorage
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            sessionStorage.setItem("uploadedImage", e.target.result);
+            // Redirect to results page
+            window.location.href = "result.html";
+        };
+        reader.onerror = function () {
+            console.error("Failed to read image file");
+            showErrorState();
+        };
+        reader.readAsDataURL(imageFile);
+    }
+
     // Show loading state
-    showLoadingState();
-
-    // Prepare and send request to server
-    const formData = new FormData();
-    formData.append("file", file);
-
-    // Send POST request to the server
-    fetch(API_ENDPOINT, {
-        method: "POST",
-        body: formData,
-        headers: {
-            'ngrok-skip-browser-warning': 'true'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log("Server response:", data);
-        
-        // Check if objects were detected
-        const hasDetections = checkForDetections(data);
-        
-        if (hasDetections) {
-            //  Objects detected - save data and redirect
-            saveDataAndRedirect(data, file);
-        } else {
-            // No objects detected - show no detection UI
-            showNoDetectionState();
-        }
-    })
-    .catch(error => {
-        console.error("Request failed:", error);
-        showErrorState();
-    });
-}
-
-// Check if server response contains object detections
-function checkForDetections(data) {
-    // Handle specific API response format
-    if (data && data.success === true && data.predictions && Array.isArray(data.predictions)) {
-        return data.predictions.length > 0;
+    function showLoadingState() {
+        updateUI("Scanning Image...", "Wait a while we are scanning your image", false);
+        showLoader();
     }
-    
-    // Handle direct array format
-    if (Array.isArray(data)) {
-        return data.length > 0;
+
+    // Show no detection state
+    function showNoDetectionState() {
+        updateUI("No Trash Detected", "Please try again with a different image.", false);
+        hideLoader();
     }
-    
-    return false;
-}
 
-// Save response data and image, then redirect to results
-function saveDataAndRedirect(serverResponse, imageFile) {
-    // Extract predictions from your API format
-    const predictions = serverResponse.predictions || serverResponse;
-    
-    // Save predictions to localStorage
-    localStorage.setItem("prediction", JSON.stringify(predictions));
-    
-    // Convert image to base64 and save to sessionStorage
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        sessionStorage.setItem("uploadedImage", e.target.result);
-        // Redirect to results page
-        window.location.href = "result.html";
-    };
-    reader.onerror = function() {
-        console.error("Failed to read image file");
-        showErrorState();
-    };
-    reader.readAsDataURL(imageFile);
-}
+    // Show error state
+    function showErrorState() {
+        updateUI("Error Occurred", "Failed to connect to server. Please try again.", false);
+        hideLoader();
+    }
 
-// Show loading state
-function showLoadingState() {
-    updateUI("Scanning Image...", "Wait a while we are scanning your image", false);
-    showLoader();
-}
+    // Reset to ready state
+    function showReadyState() {
+        updateUI("AI Scanner Ready", 'Click "Scan This Image" to proceed scanning for trash type!', true);
+        hideLoader();
+    }
 
-// Show no detection state
-function showNoDetectionState() {
-    updateUI("No Trash Detected", "Please try again with a different image.", false);
-    hideLoader();
-}
+    // Helper function to update UI elements
+    function updateUI(title, subtitle, showButton) {
+        const titleElement = document.getElementById("uploadTitle") || document.querySelector(".upload-title");
+        const subtitleElement = document.getElementById("uploadSubtitle") || document.querySelector(".upload-subtitle");
+        const buttonElement = document.getElementById("predictBtn") || document.querySelector(".predict-btn");
 
-// Show error state
-function showErrorState() {
-    updateUI("Error Occurred", "Failed to connect to server. Please try again.", false);
-    hideLoader();
-}
+        if (titleElement) titleElement.textContent = title;
+        if (subtitleElement) subtitleElement.textContent = subtitle;
+        if (buttonElement) buttonElement.style.display = showButton ? "inline" : "none";
+    }
 
-// Reset to ready state
-function showReadyState() {
-    updateUI("AI Scanner Ready", 'Click "Scan This Image" to proceed scanning for trash type!', true);
-    hideLoader();
-}
-
-// Helper function to update UI elements
-function updateUI(title, subtitle, showButton) {
-    const titleElement = document.getElementById("uploadTitle") || document.querySelector(".upload-title");
-    const subtitleElement = document.getElementById("uploadSubtitle") || document.querySelector(".upload-subtitle");
-    const buttonElement = document.getElementById("predictBtn") || document.querySelector(".predict-btn");
-    
-    if (titleElement) titleElement.textContent = title;
-    if (subtitleElement) subtitleElement.textContent = subtitle;
-    if (buttonElement) buttonElement.style.display = showButton ? "inline" : "none";
-}
-
-// Loader functions
-function showLoader() {
-    let loader = document.getElementById("loader-wrapper");
-    if (!loader) {
-        loader = document.createElement("div");
-        loader.id = "loader-wrapper";
-        loader.className = "load-wrapp";
-        loader.innerHTML = `
+    // Loader functions
+    function showLoader() {
+        let loader = document.getElementById("loader-wrapper");
+        if (!loader) {
+            loader = document.createElement("div");
+            loader.id = "loader-wrapper";
+            loader.className = "load-wrapp";
+            loader.innerHTML = `
             <div class="load">
                 <div class="line"></div>
                 <div class="line"></div>
                 <div class="line"></div>
             </div>
         `;
-        const subtitle = document.getElementById("uploadSubtitle") || document.querySelector(".upload-subtitle");
-        if (subtitle) {
-            subtitle.insertAdjacentElement("afterend", loader);
+            const subtitle = document.getElementById("uploadSubtitle") || document.querySelector(".upload-subtitle");
+            if (subtitle) {
+                subtitle.insertAdjacentElement("afterend", loader);
+            }
         }
     }
-}
 
-function hideLoader() {
-    const loader = document.getElementById("loader-wrapper");
-    if (loader) {
-        loader.remove();
+    function hideLoader() {
+        const loader = document.getElementById("loader-wrapper");
+        if (loader) {
+            loader.remove();
+        }
     }
-}
 </script>
 
 </html>
-
