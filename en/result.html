@@ -255,6 +255,15 @@
             boxWidth, boxHeight, prediction: bestPrediction
         });
 
+        // Additional debug logs to understand coordinate system
+        console.log("=== COORDINATE ANALYSIS ===");
+        console.log("Box coordinates as percentage of image:");
+        console.log(`X1: ${(box.x1 / naturalWidth * 100).toFixed(2)}%`);
+        console.log(`Y1: ${(box.y1 / naturalHeight * 100).toFixed(2)}%`);
+        console.log(`X2: ${(box.x2 / naturalWidth * 100).toFixed(2)}%`);
+        console.log(`Y2: ${(box.y2 / naturalHeight * 100).toFixed(2)}%`);
+        console.log("If percentages > 100%, coordinates are likely in wrong format");
+
         // Validate dimensions
         if (boxWidth <= 0 || boxHeight <= 0) {
             console.warn("Invalid box dimensions:", { boxWidth, boxHeight });
