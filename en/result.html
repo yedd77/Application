@@ -8,136 +8,6 @@
     <script src="../script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/heic2any/dist/heic2any.min.js"></script>
     <title>NeuroSort - Detection Result</title>
-    <style>
-        .title {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 30px;
-        }
-
-        .image-container {
-            position: relative;
-            display: inline-block;
-            margin: 20px 0;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            background: white;
-            align-items: center;
-            display: flex;
-            justify-content: center;
-        }
-
-        .result-image {
-            width: 80%;
-            height: auto;
-            display: block;
-        }
-
-        .detection-info {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            margin: 30px 0;
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .detection-label {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            text-transform: capitalize;
-        }
-
-        .confidence-score {
-            font-size: 1rem;
-            color: #666;
-            margin-bottom: 15px;
-        }
-
-        .recyclable-status {
-            display: inline-block;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.9rem;
-            color: white;
-            background: #28a745;
-        }
-
-        .next-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            margin-top: 30px;
-        }
-
-        .next-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .error {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 60vh;
-            color: #e74c3c;
-        }
-
-        .error h2 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-        }
-
-        .error p {
-            font-size: 1.1rem;
-            margin-bottom: 30px;
-        }
-
-        .error-button {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            font-size: 1rem;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .error-button:hover {
-            background: #c0392b;
-            transform: translateY(-1px);
-        }
-
-        @media (max-width: 768px) {
-            .result-image {
-                max-width: 90vw;
-                max-height: 400px;
-            }
-
-            .title {
-                font-size: 1.5rem;
-            }
-
-            .detection-info {
-                margin: 20px 10px;
-            }
-        }
-    </style>
 </head>
 
 <body>
@@ -171,32 +41,30 @@
     </div>
 
     <div class="main-content-result">
-        <!-- Error State -->
         <div id="error" class="error" style="display: none;">
-            <h2>❌ Error</h2>
+            <h2>Error</h2>
             <p>No detection data found. Please go back and scan an image.</p>
             <button class="error-button" onclick="goBack()">Go Back</button>
         </div>
 
-        <!-- Result State -->
         <div id="result" class="result-container" style="display: none;">
             <h1 class="title">Detection Result</h1>
 
-            <div class="image-container">
-                <img id="resultImage" class="result-image" alt="Detection Result">
-            </div>
-
             <div class="detection-info">
+                <div class="image-container">
+                    <img id="resultImage" class="result-image" alt="Detection Result">
+                </div>
                 <div id="detectionLabel" class="detection-label"></div>
-                <div id="confidenceScore" class="confidence-score"></div>
-                <div class="recyclable-status">♻️ Recyclable</div>
+                <div class="bin-color"></div>
+                <div class="recyclable-status">Recyclable</div>
             </div>
 
             <button class="next-button" onclick="goToNextPage()">
-                Next Step ➡️
+                Next Step
             </button>
         </div>
     </div>
+
     <!-- Overlay -->
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
@@ -207,16 +75,23 @@
 </body>
 <script>
     // Detection colors
-    const DETECTION_COLORS = {
-        'paper': '#237db2',
-        'plastic': '#e4861b',
-        'metal': '#99612d',
-        'glass': '#99612d'
+    const detectionColors = {
+        'paper': '#4687f1',
+        'plastic': '#fa8122',
+        'metal': '#846958',
+        'glass': '#846958'
+    };
+
+    const binType = {
+        'paper': 'Blue Bin',
+        'plastic': 'Orange Bin',
+        'metal': 'Brown Bin',
+        'glass': 'Brown Bin'
     };
 
     // Get color for detection type
     function getDetectionColor(name) {
-        return DETECTION_COLORS[name.toLowerCase()] || '#9b59b6';
+        return detectionColors[name.toLowerCase()] || '#9b59b6';
     }
 
     // Get highest confidence prediction
@@ -256,7 +131,7 @@
     function setupResult(imageData, prediction) {
         const resultImage = document.getElementById('resultImage');
         const detectionLabel = document.getElementById('detectionLabel');
-        const confidenceScore = document.getElementById('confidenceScore');
+        const binColor = document.querySelector('.bin-color');
 
         // Set up image
         resultImage.onload = function () {
@@ -272,20 +147,9 @@
 
         // Set up labels
         detectionLabel.textContent = prediction.name;
-        detectionLabel.style.color = getDetectionColor(prediction.name);
+        binColor.textContent = binType[prediction.name.toLowerCase()] || 'Unknown Bin';
+        binColor.style.backgroundColor = getDetectionColor(prediction.name);
 
-        const confidence = Math.round(prediction.confidence * 100);
-        confidenceScore.textContent = `Confidence: ${confidence}%`;
-        
-        // Add confidence level styling
-        confidenceScore.classList.remove('confidence-low', 'confidence-medium', 'confidence-high');
-        if (confidence < 40) {
-            confidenceScore.classList.add('confidence-low');
-        } else if (confidence < 70) {
-            confidenceScore.classList.add('confidence-medium');
-        } else {
-            confidenceScore.classList.add('confidence-high');
-        }
     }
 
     // Show error state

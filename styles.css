@@ -74,7 +74,7 @@ body {
     display: none;
 }
 
-#or{
+#or {
     font-size: 14px;
     font-weight: 300;
 }
@@ -664,11 +664,123 @@ body {
 }
 
 .result-container {
-            max-width: 800px;
-            width: 100%;
-            text-align: center;
-            margin: 0 auto;
-        }
+    max-width: 800px;
+    width: 100%;
+    text-align: center;
+    margin: 0 auto;
+}
+
+.result-container .title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.image-container {
+    position: relative;
+    display: inline-block;
+    margin: 20px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+
+.result-image {
+    width: 90%;
+    height: auto;
+    display: block;
+    border-radius: 12px;
+}
+
+.detection-info {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin: 30px 0;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.detection-label {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    text-transform: capitalize;
+    margin-bottom: 20px;
+}
+
+.bin-color {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 12px;
+    color: white;
+    background: #28a745;
+}
+.recyclable-status {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 12px;
+    color: white;
+    background: #28a745;
+}
+
+.next-button {
+    margin-top: 40px;
+    background: #7db518;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 400;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 1000;
+    border-radius: 20px;
+}
+
+.error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    color: #e74c3c;
+}
+
+.error h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.error p {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+}
+
+.error-button {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.error-button:hover {
+    background: #c0392b;
+    transform: translateY(-1px);
+}
 
 /* -----------------------------------End of styling for result.html----------------------------------- */
 
