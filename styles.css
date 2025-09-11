@@ -689,8 +689,7 @@ body {
 }
 
 .result-image {
-    width: 90%;
-    height: auto;
+    width: 70%;
     display: block;
     border-radius: 12px;
 }

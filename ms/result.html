@@ -6,60 +6,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../styles.css">
     <script src="../script.js"></script>
-    <title>NeuroSort</title> <!-- Title of the website -->
+    <script src="https://cdn.jsdelivr.net/npm/heic2any/dist/heic2any.min.js"></script>
+    <title>NeuroSort - Detection Result</title>
 </head>
 
 <body>
-    <div id="error" class="error" style="display: none;">
-        <h2>Ralat</h2>
-        <p>Tiada data pengimbasan. Sila kembali dan imbas imej.</p>
-        <button class="error-button" onclick="goBack()">Kembali</button>
+    <!-- Header -->
+    <div class="header">
+        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+        <div class="logo">NeuroSort</div>
+        <img src="../Images/logo.png" alt="NeuroSort Logo">
     </div>
 
-    <div id="result" style="display: none;">
-        <div class="result-wrapper">
-            <div class="background-layer">
-                <img id="backgroundImage" class="background-image" alt="">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="../Images/logo.png" alt="NeuroSort Logo">
+            <div class="top-name">NeuroSort</div>
+        </div>
+        <nav class="nav-menu">
+            <a href="application.html" class="nav-item">
+                <i>🏠</i>
+                <span>Utama</span>
+            </a>
+            <a href="https://wa.me/60123456789" class="nav-item">
+                <i>❓</i>
+                <span>Hubungi Kami</span>
+            </a>
+            <a href="setting.html" class="nav-item">
+                <i>⚙️</i>
+                <span>Tetapan</span>
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content-result">
+        <div id="error" class="error" style="display: none;">
+            <h2>Ralat</h2>
+            <p>Tiada data pengesanan ditemui. Sila kembali dan imbas imej.</p>
+            <button class="error-button" onclick="goBack()">Kembali</button>
+        </div>
+
+        <div id="result" class="result-container" style="display: none;">
+            <h1 class="title">Keputusan Pengesanan</h1>
+
+            <div class="detection-info">
+                <div class="image-container">
+                    <img id="resultImage" class="result-image" alt="Detection Result">
+                </div>
+                <div id="detectionLabel" class="detection-label"></div>
+                <div class="bin-color"></div>
+                <div class="recyclable-status">Boleh Kitar Semula</div>
             </div>
 
-            <div class="result-container">
-                <div class="image-wrapper">
-                    <img id="resultImage" class="result-image" alt="Detection Result">
-                    <div id="boundingBoxes" class="bounding-boxes"></div>
-                </div>
-            </div>
-            <button class="next-button" onclick="goToNextPage()">Seterusnya</button>
+            <button class="next-button" onclick="goToNextPage()">
+                Langkah Seterusnya
+            </button>
         </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Footer Tab Bar -->
+    <div class="footer-tab-bar">
+        <span>Bijak Lestari, Bijak NeuroSort</span>
     </div>
 </body>
 <script>
-    // Define everything at the top
-    const DETECTION_COLORS = {
-        'paper': '#237db2',
-        'plastic': '#e4861b',
-        'metal': '#99612d',
-        'glass': '#99612d'
+    // Detection colors
+    const detectionColors = {
+        'paper': '#4687f1',
+        'plastic': '#fa8122',
+        'metal': '#846958',
+        'glass': '#846958'
     };
 
-    // Function to get color based on detection name
-    function getDetectionColor(prediction) {
-        const name = prediction.name.toLowerCase();
-        console.log("Detection name:", prediction.name, "→ lowercase:", name, "→ color:", DETECTION_COLORS[name]);
-        return DETECTION_COLORS[name] || '#00ff00';
+    const binType = {
+        'paper': 'Tong Biru',
+        'plastic': 'Tong Oren',
+        'metal': 'Tong Coklat',
+        'glass': 'Tong Coklat'
+    };
+
+    // Get color for detection type
+    function getDetectionColor(name) {
+        return detectionColors[name.toLowerCase()] || '#9b59b6';
     }
 
-    // Function to get the prediction with the highest confidence
+    // Get highest confidence prediction
     function getHighestConfidencePrediction(predictions) {
         if (!predictions || predictions.length === 0) return null;
-
-        // Sort by confidence descending and return the first (highest)
-        const sortedPredictions = predictions.sort((a, b) => b.confidence - a.confidence);
-        console.log("All predictions:", predictions);
-        console.log("Highest confidence prediction:", sortedPredictions[0]);
-        return sortedPredictions[0];
+        return predictions.sort((a, b) => b.confidence - a.confidence)[0];
     }
 
-    // Load image and predictions from storage
+    // Main function to load and display results
     function loadResults() {
         try {
             const imageData = sessionStorage.getItem("uploadedImage");
@@ -71,8 +112,14 @@
             }
 
             const predictions = JSON.parse(predictionData);
-            console.log("Loaded predictions:", predictions);
-            setupImageAndDetections(imageData, predictions);
+            const bestPrediction = getHighestConfidencePrediction(predictions);
+
+            if (!bestPrediction) {
+                showError();
+                return;
+            }
+
+            setupResult(imageData, bestPrediction);
 
         } catch (error) {
             console.error("Error loading results:", error);
@@ -80,184 +127,71 @@
         }
     }
 
-    // Setup image and draw bounding boxes
-    function setupImageAndDetections(imageData, predictions) {
+    // Setup the result display
+    function setupResult(imageData, prediction) {
         const resultImage = document.getElementById('resultImage');
-        const backgroundImage = document.getElementById('backgroundImage');
-        const boundingBoxesContainer = document.getElementById('boundingBoxes');
+        const detectionLabel = document.getElementById('detectionLabel');
+        const binColor = document.querySelector('.bin-color');
 
-        backgroundImage.src = imageData;
-
+        // Set up image
         resultImage.onload = function () {
-            console.log("Main image loaded");
             document.getElementById('result').style.display = 'block';
-
-            requestAnimationFrame(() => {
-                drawBoundingBox(resultImage, boundingBoxesContainer, predictions);
-            });
         };
 
         resultImage.onerror = function () {
-            console.error("Failed to load main image");
+            console.error("Failed to load image");
             showError();
         };
 
         resultImage.src = imageData;
-    }
 
-    // Draw bounding box for the highest confidence prediction
-    function drawBoundingBox(imageElement, container, predictions) {
-        container.innerHTML = '';
-
-        // Get only the highest confidence prediction
-        const bestPrediction = getHighestConfidencePrediction(predictions);
-        if (!bestPrediction) {
-            console.log("No valid predictions found");
-            return;
-        }
-
-        const imageRect = imageElement.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-
-        const naturalWidth = imageElement.naturalWidth;
-        const naturalHeight = imageElement.naturalHeight;
-
-        const displayedWidth = imageRect.width;
-        const displayedHeight = imageRect.height;
-
-        const scaleX = displayedWidth / naturalWidth;
-        const scaleY = displayedHeight / naturalHeight;
-
-        const offsetX = (containerRect.width - displayedWidth) / 2;
-        const offsetY = (containerRect.height - displayedHeight) / 2;
-
-        console.log("Image dimensions:", {
-            natural: { width: naturalWidth, height: naturalHeight },
-            displayed: { width: displayedWidth, height: displayedHeight },
-            scale: { x: scaleX, y: scaleY },
-            offset: { x: offsetX, y: offsetY }
-        });
-
-        // Draw only the best prediction
-        const box = bestPrediction.box;
-        if (!box) return;
-
-        const scaledX1 = box.x1 * scaleX + offsetX;
-        const scaledY1 = box.y1 * scaleY + offsetY;
-        const scaledX2 = box.x2 * scaleX + offsetX;
-        const scaledY2 = box.y2 * scaleY + offsetY;
-
-        const boxWidth = scaledX2 - scaledX1;
-        const boxHeight = scaledY2 - scaledY1;
-
-        const boundingBox = document.createElement('div');
-        boundingBox.className = 'bounding-box';
-
-        // Get color for this detection
-        const color = getDetectionColor(bestPrediction);
-        boundingBox.style.borderColor = color;
-        boundingBox.style.backgroundColor = color + '26';
-        boundingBox.style.boxShadow = `0 0 15px ${color}99`;
-
-        boundingBox.style.left = scaledX1 + 'px';
-        boundingBox.style.top = scaledY1 + 'px';
-        boundingBox.style.width = boxWidth + 'px';
-        boundingBox.style.height = boxHeight + 'px';
-
-        // Create main label
-        const label = document.createElement('div');
-        label.className = 'box-label';
-        label.style.backgroundColor = color + 'F2';
-        label.style.borderColor = color;
-
-        const confidence = Math.round(bestPrediction.confidence * 100);
-
+        // Set up labels
         let labelName;
-        if (bestPrediction.name.toLowerCase() === 'paper') {
+
+        if (prediction.name.toLowerCase() === 'paper') {
             labelName = 'Kertas';
-        } else if (bestPrediction.name.toLowerCase() === 'plastic') {
+        } else if (prediction.name.toLowerCase() === 'plastic') {
             labelName = 'Plastik';
-        } else if (bestPrediction.name.toLowerCase() === 'metal') {
-            labelName = 'Besi';
-        } else if (bestPrediction.name.toLowerCase() === 'glass') {
+        } else if (prediction.name.toLowerCase() === 'metal') {
+            labelName = 'Logam';
+        } else if (prediction.name.toLowerCase() === 'glass') {
             labelName = 'Kaca';
         } else {
-            labelName = bestPrediction.name;
+            labelName = 'Tidak Diketahui';
         }
-        label.textContent = `${labelName}`;
+        detectionLabel.textContent = labelName;
 
-        // Position label (above or below box based on available space)
-        if (scaledY1 > 45) {
-            label.style.top = '-35px';
-        } else {
-            label.classList.add('label-below');
-        }
+        binColor.textContent = binType[prediction.name.toLowerCase()] || 'Ralat';
+        binColor.style.backgroundColor = getDetectionColor(prediction.name);
 
-        // Create recyclable label
-        const recyclableLabel = document.createElement('div');
-        recyclableLabel.className = 'recyclable-label';
-        recyclableLabel.textContent = 'Kitar Semula';
-
-        recyclableLabel.style.whiteSpace = 'nowrap';
-        recyclableLabel.style.overflow = 'hidden';
-        recyclableLabel.style.textOverflow = 'ellipsis';
-
-        // Add both labels to bounding box
-        boundingBox.appendChild(label);
-        boundingBox.appendChild(recyclableLabel);
-        container.appendChild(boundingBox);
-
-        console.log("Best prediction box:", {
-            prediction: bestPrediction,
-            original: box,
-            scaled: { x1: scaledX1, y1: scaledY1, x2: scaledX2, y2: scaledY2 },
-            dimensions: { width: boxWidth, height: boxHeight }
-        });
     }
 
-    // Show error message
+    // Show error state
     function showError() {
         document.getElementById('error').style.display = 'flex';
+        document.getElementById('result').style.display = 'none';
     }
 
-    // Navigation to previous page
+    // Navigation functions
     function goBack() {
         window.history.back();
     }
 
-    // Navigation to next page
     function goToNextPage() {
         const predictionData = localStorage.getItem("prediction");
         const predictions = JSON.parse(predictionData);
         const bestPrediction = getHighestConfidencePrediction(predictions);
 
-        //lower case the name to match the expected URL parameter
         bestPrediction.name = bestPrediction.name.toLowerCase();
 
-        // Pass the prediction name as URL parameter
-        if (bestPrediction.name == "glass" || bestPrediction.name == "metal") {
+        if (bestPrediction.name === "glass" || bestPrediction.name === "metal") {
             window.location.href = `trash-guide.html?type=metalOrGlass`;
         } else {
             window.location.href = `trash-guide.html?type=${bestPrediction.name}`;
         }
     }
 
-    // Redraw bounding boxes on window resize
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-            const resultImage = document.getElementById('resultImage');
-            const boundingBoxesContainer = document.getElementById('boundingBoxes');
-            const predictionData = localStorage.getItem("prediction");
-
-            if (resultImage && boundingBoxesContainer && predictionData) {
-                const predictions = JSON.parse(predictionData);
-                drawBoundingBox(resultImage, boundingBoxesContainer, predictions);
-            }
-        }, 250);
-    });
-
+    // Initialize when page loads
     document.addEventListener('DOMContentLoaded', loadResults);
 </script>
 

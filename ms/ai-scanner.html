@@ -144,8 +144,6 @@
 
     // Function to display file information and preview
     function displayFileInfo(file) {
-        fileName.textContent = file.name;
-        fileSize.textContent = formatFileSize(file.size);
 
         // Create preview
         const reader = new FileReader();
