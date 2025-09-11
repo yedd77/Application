@@ -1,33 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/heic2any/dist/heic2any.min.js"></script>
     <title>NeuroSort - Detection Result</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background: white;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            width: 100%;
-            text-align: center;
-            margin: 0 auto;
-        }
-
         .title {
             font-size: 2rem;
             font-weight: bold;
@@ -43,22 +24,15 @@
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             background: white;
+            align-items: center;
+            display: flex;
+            justify-content: center;
         }
 
         .result-image {
-            max-width: 600px;
-            max-height: 500px;
-            width: auto;
+            width: 80%;
             height: auto;
             display: block;
-        }
-
-        .bounding-box {
-            position: absolute;
-            border: 3px solid;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(2px);
         }
 
         .detection-info {
@@ -154,226 +128,197 @@
                 max-width: 90vw;
                 max-height: 400px;
             }
-            
+
             .title {
                 font-size: 1.5rem;
             }
-            
+
             .detection-info {
                 margin: 20px 10px;
             }
         }
     </style>
 </head>
+
 <body>
-    <!-- Error State -->
-    <div id="error" class="error" style="display: none;">
-        <h2>❌ Error</h2>
-        <p>No detection data found. Please go back and scan an image.</p>
-        <button class="error-button" onclick="goBack()">Go Back</button>
+    <!-- Header -->
+    <div class="header">
+        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+        <div class="logo">NeuroSort</div>
+        <img src="../Images/logo.png" alt="NeuroSort Logo">
     </div>
 
-    <!-- Result State -->
-    <div id="result" class="container" style="display: none;">
-        <h1 class="title">🔍 Detection Result</h1>
-        
-        <div class="image-container">
-            <img id="resultImage" class="result-image" alt="Detection Result">
-            <div id="boundingBox" class="bounding-box"></div>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="../Images/logo.png" alt="NeuroSort Logo">
+            <div class="top-name">NeuroSort</div>
         </div>
-
-        <div class="detection-info">
-            <div id="detectionLabel" class="detection-label"></div>
-            <div id="confidenceScore" class="confidence-score"></div>
-            <div class="recyclable-status">♻️ Recyclable</div>
-        </div>
-
-        <button class="next-button" onclick="goToNextPage()">
-            Next Step ➡️
-        </button>
+        <nav class="nav-menu">
+            <a href="application.html" class="nav-item">
+                <i>🏠</i>
+                <span>Home</span>
+            </a>
+            <a href="https://wa.me/60123456789" class="nav-item">
+                <i>❓</i>
+                <span>Contact Us</span>
+            </a>
+            <a href="setting.html" class="nav-item">
+                <i>⚙️</i>
+                <span>Settings</span>
+            </a>
+        </nav>
     </div>
 
-    <script>
-        // Detection colors
-        const DETECTION_COLORS = {
-            'paper': '#3498db',
-            'plastic': '#f39c12',
-            'metal': '#95a5a6',
-            'glass': '#27ae60'
-        };
+    <div class="main-content-result">
+        <!-- Error State -->
+        <div id="error" class="error" style="display: none;">
+            <h2>❌ Error</h2>
+            <p>No detection data found. Please go back and scan an image.</p>
+            <button class="error-button" onclick="goBack()">Go Back</button>
+        </div>
 
-        // Get color for detection type
-        function getDetectionColor(name) {
-            return DETECTION_COLORS[name.toLowerCase()] || '#9b59b6';
-        }
+        <!-- Result State -->
+        <div id="result" class="result-container" style="display: none;">
+            <h1 class="title">Detection Result</h1>
 
-        // Get highest confidence prediction
-        function getHighestConfidencePrediction(predictions) {
-            if (!predictions || predictions.length === 0) return null;
-            return predictions.sort((a, b) => b.confidence - a.confidence)[0];
-        }
+            <div class="image-container">
+                <img id="resultImage" class="result-image" alt="Detection Result">
+            </div>
 
-        // Main function to load and display results
-        function loadResults() {
-            try {
-                const imageData = sessionStorage.getItem("uploadedImage");
-                const predictionData = localStorage.getItem("prediction");
+            <div class="detection-info">
+                <div id="detectionLabel" class="detection-label"></div>
+                <div id="confidenceScore" class="confidence-score"></div>
+                <div class="recyclable-status">♻️ Recyclable</div>
+            </div>
 
-                if (!imageData || !predictionData) {
-                    showError();
-                    return;
-                }
+            <button class="next-button" onclick="goToNextPage()">
+                Next Step ➡️
+            </button>
+        </div>
+    </div>
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-                const predictions = JSON.parse(predictionData);
-                const bestPrediction = getHighestConfidencePrediction(predictions);
+    <!-- Footer Tab Bar -->
+    <div class="footer-tab-bar">
+        <span>Be Smart, Be Green, Be NeuroSort</span>
+    </div>
+</body>
+<script>
+    // Detection colors
+    const DETECTION_COLORS = {
+        'paper': '#237db2',
+        'plastic': '#e4861b',
+        'metal': '#99612d',
+        'glass': '#99612d'
+    };
 
-                if (!bestPrediction) {
-                    showError();
-                    return;
-                }
+    // Get color for detection type
+    function getDetectionColor(name) {
+        return DETECTION_COLORS[name.toLowerCase()] || '#9b59b6';
+    }
 
-                setupResult(imageData, bestPrediction);
+    // Get highest confidence prediction
+    function getHighestConfidencePrediction(predictions) {
+        if (!predictions || predictions.length === 0) return null;
+        return predictions.sort((a, b) => b.confidence - a.confidence)[0];
+    }
 
-            } catch (error) {
-                console.error("Error loading results:", error);
-                showError();
-            }
-        }
-
-        // Setup the result display
-        function setupResult(imageData, prediction) {
-            const resultImage = document.getElementById('resultImage');
-            const detectionLabel = document.getElementById('detectionLabel');
-            const confidenceScore = document.getElementById('confidenceScore');
-
-            // Set up image
-            resultImage.onload = function() {
-                document.getElementById('result').style.display = 'block';
-                drawBoundingBox(resultImage, prediction);
-            };
-
-            resultImage.onerror = function() {
-                console.error("Failed to load image");
-                showError();
-            };
-
-            resultImage.src = imageData;
-
-            // Set up labels
-            detectionLabel.textContent = prediction.name;
-            detectionLabel.style.color = getDetectionColor(prediction.name);
-            
-            const confidence = Math.round(prediction.confidence * 100);
-            confidenceScore.textContent = `Confidence: ${confidence}%`;
-        }
-
-        // Draw bounding box on the image
-        function drawBoundingBox(imageElement, prediction) {
-            const boundingBox = document.getElementById('boundingBox');
-            
-            if (!prediction.box) {
-                console.log("No bounding box data");
-                return;
-            }
-
-            const box = prediction.box;
-            const naturalWidth = imageElement.naturalWidth;
-            const naturalHeight = imageElement.naturalHeight;
-            const displayWidth = imageElement.offsetWidth;
-            const displayHeight = imageElement.offsetHeight;
-
-            // Calculate scale factors
-            const scaleX = displayWidth / naturalWidth;
-            const scaleY = displayHeight / naturalHeight;
-
-            // Clamp coordinates to image boundaries
-            const clampedBox = {
-                x1: Math.max(0, Math.min(box.x1, naturalWidth)),
-                y1: Math.max(0, Math.min(box.y1, naturalHeight)),
-                x2: Math.max(0, Math.min(box.x2, naturalWidth)),
-                y2: Math.max(0, Math.min(box.y2, naturalHeight))
-            };
-
-            // Calculate display coordinates
-            const displayX1 = clampedBox.x1 * scaleX;
-            const displayY1 = clampedBox.y1 * scaleY;
-            const displayX2 = clampedBox.x2 * scaleX;
-            const displayY2 = clampedBox.y2 * scaleY;
-
-            const boxWidth = displayX2 - displayX1;
-            const boxHeight = displayY2 - displayY1;
-
-            // Validate dimensions
-            if (boxWidth <= 0 || boxHeight <= 0) {
-                console.warn("Invalid box dimensions");
-                return;
-            }
-
-            // Get color and apply styling
-            const color = getDetectionColor(prediction.name);
-            boundingBox.style.left = displayX1 + 'px';
-            boundingBox.style.top = displayY1 + 'px';
-            boundingBox.style.width = boxWidth + 'px';
-            boundingBox.style.height = boxHeight + 'px';
-            boundingBox.style.borderColor = color;
-            boundingBox.style.boxShadow = `0 0 20px ${color}66`;
-
-            console.log("Bounding box positioned successfully", {
-                original: box,
-                clamped: clampedBox,
-                display: { x1: displayX1, y1: displayY1, width: boxWidth, height: boxHeight }
-            });
-        }
-
-        // Show error state
-        function showError() {
-            document.getElementById('error').style.display = 'flex';
-            document.getElementById('result').style.display = 'none';
-        }
-
-        // Navigation functions
-        function goBack() {
-            window.history.back();
-        }
-
-        function goToNextPage() {
+    // Main function to load and display results
+    function loadResults() {
+        try {
+            const imageData = sessionStorage.getItem("uploadedImage");
             const predictionData = localStorage.getItem("prediction");
-            if (!predictionData) return;
+
+            if (!imageData || !predictionData) {
+                showError();
+                return;
+            }
 
             const predictions = JSON.parse(predictionData);
             const bestPrediction = getHighestConfidencePrediction(predictions);
-            
-            if (!bestPrediction) return;
 
-            const name = bestPrediction.name.toLowerCase();
-            
-            if (name === "glass" || name === "metal") {
-                window.location.href = `trash-guide.html?type=metalOrGlass`;
-            } else {
-                window.location.href = `trash-guide.html?type=${name}`;
+            if (!bestPrediction) {
+                showError();
+                return;
             }
+
+            setupResult(imageData, bestPrediction);
+
+        } catch (error) {
+            console.error("Error loading results:", error);
+            showError();
         }
+    }
 
-        // Handle window resize
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                const resultImage = document.getElementById('resultImage');
-                const predictionData = localStorage.getItem("prediction");
-                
-                if (resultImage && predictionData && resultImage.complete) {
-                    const predictions = JSON.parse(predictionData);
-                    const bestPrediction = getHighestConfidencePrediction(predictions);
-                    if (bestPrediction) {
-                        drawBoundingBox(resultImage, bestPrediction);
-                    }
-                }
-            }, 250);
-        });
+    // Setup the result display
+    function setupResult(imageData, prediction) {
+        const resultImage = document.getElementById('resultImage');
+        const detectionLabel = document.getElementById('detectionLabel');
+        const confidenceScore = document.getElementById('confidenceScore');
 
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', loadResults);
-    </script>
-</body>
+        // Set up image
+        resultImage.onload = function () {
+            document.getElementById('result').style.display = 'block';
+        };
+
+        resultImage.onerror = function () {
+            console.error("Failed to load image");
+            showError();
+        };
+
+        resultImage.src = imageData;
+
+        // Set up labels
+        detectionLabel.textContent = prediction.name;
+        detectionLabel.style.color = getDetectionColor(prediction.name);
+
+        const confidence = Math.round(prediction.confidence * 100);
+        confidenceScore.textContent = `Confidence: ${confidence}%`;
+        
+        // Add confidence level styling
+        confidenceScore.classList.remove('confidence-low', 'confidence-medium', 'confidence-high');
+        if (confidence < 40) {
+            confidenceScore.classList.add('confidence-low');
+        } else if (confidence < 70) {
+            confidenceScore.classList.add('confidence-medium');
+        } else {
+            confidenceScore.classList.add('confidence-high');
+        }
+    }
+
+    // Show error state
+    function showError() {
+        document.getElementById('error').style.display = 'flex';
+        document.getElementById('result').style.display = 'none';
+    }
+
+    // Navigation functions
+    function goBack() {
+        window.history.back();
+    }
+
+    function goToNextPage() {
+        const predictionData = localStorage.getItem("prediction");
+        if (!predictionData) return;
+
+        const predictions = JSON.parse(predictionData);
+        const bestPrediction = getHighestConfidencePrediction(predictions);
+
+        if (!bestPrediction) return;
+
+        const name = bestPrediction.name.toLowerCase();
+
+        if (name === "glass" || name === "metal") {
+            window.location.href = `trash-guide.html?type=metalOrGlass`;
+        } else {
+            window.location.href = `trash-guide.html?type=${name}`;
+        }
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', loadResults);
+</script>
+
 </html>
