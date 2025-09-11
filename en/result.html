@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../styles.css">
     <script src="../script.js"></script>
-    <title>NeuroSort</title> <!-- Title of the website -->
+    <title>NeuroSort</title>
 </head>
 
 <body>
@@ -92,9 +92,10 @@
             console.log("Main image loaded");
             document.getElementById('result').style.display = 'block';
 
-            requestAnimationFrame(() => {
+            // Wait for the image to be fully rendered before calculating positions
+            setTimeout(() => {
                 drawBoundingBox(resultImage, boundingBoxesContainer, predictions);
-            });
+            }, 100);
         };
 
         resultImage.onerror = function () {
@@ -105,7 +106,7 @@
         resultImage.src = imageData;
     }
 
-    // Draw bounding box for the highest confidence prediction
+    // Fixed bounding box drawing function
     function drawBoundingBox(imageElement, container, predictions) {
         container.innerHTML = '';
 
@@ -116,39 +117,57 @@
             return;
         }
 
-        const imageRect = imageElement.getBoundingClientRect();
+        // Get the container's position and dimensions
         const containerRect = container.getBoundingClientRect();
-
+        const imageRect = imageElement.getBoundingClientRect();
+        
+        // Get image natural dimensions
         const naturalWidth = imageElement.naturalWidth;
         const naturalHeight = imageElement.naturalHeight;
-
+        
+        // Get displayed image dimensions
         const displayedWidth = imageRect.width;
         const displayedHeight = imageRect.height;
 
+        // Calculate scaling factors
         const scaleX = displayedWidth / naturalWidth;
         const scaleY = displayedHeight / naturalHeight;
 
-        const offsetX = (containerRect.width - displayedWidth) / 2;
-        const offsetY = (containerRect.height - displayedHeight) / 2;
+        // Calculate image position relative to the container
+        const imageOffsetX = imageRect.left - containerRect.left;
+        const imageOffsetY = imageRect.top - containerRect.top;
 
-        console.log("Image dimensions:", {
-            natural: { width: naturalWidth, height: naturalHeight },
-            displayed: { width: displayedWidth, height: displayedHeight },
-            scale: { x: scaleX, y: scaleY },
-            offset: { x: offsetX, y: offsetY }
+        console.log("Fixed positioning calculations:", {
+            container: { width: containerRect.width, height: containerRect.height },
+            image: {
+                natural: { width: naturalWidth, height: naturalHeight },
+                displayed: { width: displayedWidth, height: displayedHeight },
+                offset: { x: imageOffsetX, y: imageOffsetY }
+            },
+            scale: { x: scaleX, y: scaleY }
         });
 
         // Draw only the best prediction
         const box = bestPrediction.box;
-        if (!box) return;
+        if (!box) {
+            console.log("No bounding box data found");
+            return;
+        }
 
-        const scaledX1 = box.x1 * scaleX + offsetX;
-        const scaledY1 = box.y1 * scaleY + offsetY;
-        const scaledX2 = box.x2 * scaleX + offsetX;
-        const scaledY2 = box.y2 * scaleY + offsetY;
+        // Calculate scaled coordinates relative to the container
+        const scaledX1 = (box.x1 * scaleX) + imageOffsetX;
+        const scaledY1 = (box.y1 * scaleY) + imageOffsetY;
+        const scaledX2 = (box.x2 * scaleX) + imageOffsetX;
+        const scaledY2 = (box.y2 * scaleY) + imageOffsetY;
 
         const boxWidth = scaledX2 - scaledX1;
         const boxHeight = scaledY2 - scaledY1;
+
+        // Validate box dimensions
+        if (boxWidth <= 0 || boxHeight <= 0) {
+            console.warn("Invalid box dimensions:", { width: boxWidth, height: boxHeight });
+            return;
+        }
 
         const boundingBox = document.createElement('div');
         boundingBox.className = 'bounding-box';
@@ -158,7 +177,12 @@
         boundingBox.style.borderColor = color;
         boundingBox.style.backgroundColor = color + '26';
         boundingBox.style.boxShadow = `0 0 15px ${color}99`;
+        boundingBox.style.position = 'absolute';
+        boundingBox.style.border = '2px solid';
+        boundingBox.style.borderRadius = '4px';
+        boundingBox.style.pointerEvents = 'none';
 
+        // Set position and dimensions
         boundingBox.style.left = scaledX1 + 'px';
         boundingBox.style.top = scaledY1 + 'px';
         boundingBox.style.width = boxWidth + 'px';
@@ -169,32 +193,61 @@
         label.className = 'box-label';
         label.style.backgroundColor = color + 'F2';
         label.style.borderColor = color;
+        label.style.position = 'absolute';
+        label.style.padding = '4px 8px';
+        label.style.borderRadius = '4px';
+        label.style.fontSize = '12px';
+        label.style.fontWeight = 'bold';
+        label.style.color = 'white';
+        label.style.whiteSpace = 'nowrap';
+        label.style.border = '1px solid';
 
         const confidence = Math.round(bestPrediction.confidence * 100);
-        label.textContent = `${bestPrediction.name}`;
+        label.textContent = `${bestPrediction.name} (${confidence}%)`;
 
         // Position label (above or below box based on available space)
-        if (scaledY1 > 45) {
+        if (scaledY1 > 40) {
             label.style.top = '-35px';
+            label.style.left = '0px';
         } else {
+            label.style.top = boxHeight + 5 + 'px';
+            label.style.left = '0px';
             label.classList.add('label-below');
         }
 
         // Create recyclable label
         const recyclableLabel = document.createElement('div');
         recyclableLabel.className = 'recyclable-label';
+        recyclableLabel.style.position = 'absolute';
+        recyclableLabel.style.padding = '2px 6px';
+        recyclableLabel.style.backgroundColor = '#28a745';
+        recyclableLabel.style.color = 'white';
+        recyclableLabel.style.fontSize = '10px';
+        recyclableLabel.style.borderRadius = '3px';
+        recyclableLabel.style.fontWeight = 'bold';
+        recyclableLabel.style.whiteSpace = 'nowrap';
         recyclableLabel.textContent = 'Recyclable';
+
+        // Position recyclable label below the main label
+        if (scaledY1 > 40) {
+            recyclableLabel.style.top = '-15px';
+            recyclableLabel.style.left = '0px';
+        } else {
+            recyclableLabel.style.top = boxHeight + 25 + 'px';
+            recyclableLabel.style.left = '0px';
+        }
 
         // Add both labels to bounding box
         boundingBox.appendChild(label);
         boundingBox.appendChild(recyclableLabel);
         container.appendChild(boundingBox);
 
-        console.log("Best prediction box:", {
+        console.log("Bounding box created:", {
             prediction: bestPrediction,
-            original: box,
-            scaled: { x1: scaledX1, y1: scaledY1, x2: scaledX2, y2: scaledY2 },
-            dimensions: { width: boxWidth, height: boxHeight }
+            originalBox: box,
+            scaledPosition: { x1: scaledX1, y1: scaledY1, x2: scaledX2, y2: scaledY2 },
+            dimensions: { width: boxWidth, height: boxHeight },
+            confidence: confidence
         });
     }
 
@@ -214,7 +267,7 @@
         const predictions = JSON.parse(predictionData);
         const bestPrediction = getHighestConfidencePrediction(predictions);
 
-        //lower case the name to match the expected URL parameter
+        // Lower case the name to match the expected URL parameter
         bestPrediction.name = bestPrediction.name.toLowerCase();
 
         // Pass the prediction name as URL parameter
@@ -225,7 +278,7 @@
         }
     }
 
-    // Redraw bounding boxes on window resize
+    // Improved resize handler with debouncing
     let resizeTimeout;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
@@ -234,15 +287,15 @@
             const boundingBoxesContainer = document.getElementById('boundingBoxes');
             const predictionData = localStorage.getItem("prediction");
 
-            if (resultImage && boundingBoxesContainer && predictionData) {
+            if (resultImage && boundingBoxesContainer && predictionData && resultImage.complete) {
                 const predictions = JSON.parse(predictionData);
                 drawBoundingBox(resultImage, boundingBoxesContainer, predictions);
             }
         }, 250);
     });
 
+    // Initialize when DOM is ready
     document.addEventListener('DOMContentLoaded', loadResults);
 </script>
 
 </html>
-
