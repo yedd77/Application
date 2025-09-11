@@ -54,6 +54,8 @@
             <input type="file" id="fileInput" class="file-input" accept="image/*" capture="user">
 
             <div class="file-info" id="fileInfo">
+                <div class="file-name" id="fileName"></div>
+                <div class="file-size" id="fileSize"></div>
                 <img class="preview-image" id="previewImage" alt="Preview">
             </div>
 
@@ -142,8 +144,6 @@
 
     // Function to display file information and preview
     function displayFileInfo(file) {
-        fileName.textContent = file.name;
-        fileSize.textContent = formatFileSize(file.size);
 
         // Create preview
         const reader = new FileReader();
